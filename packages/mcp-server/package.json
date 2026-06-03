@@ -1,0 +1,26 @@
+{
+  "name": "@after-the-whistle/mcp-server",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@after-the-whistle/core": "workspace:*",
+    "@after-the-whistle/db": "workspace:*",
+    "@after-the-whistle/providers": "workspace:*",
+    "@modelcontextprotocol/ext-apps": "^0.2.2",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "express": "^5.1.0",
+    "zod": "^3.24.4",
+    "iconv-lite": "^0.6.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>After The Whistle · Expected Runs + Momentum</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --surface: #1a1d24;
+      --track: #12161d;
+      --border: #2a2f3a;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --nyk: #006bb6;
+      --cle: #860038;
+      --accent-soft: #fbbf24;
+      font-family: "SF Pro Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background: #0b0d12;
+      color: var(--text);
+    }
+
+    main {
+      width: min(980px, 100%);
+      display: grid;
+      gap: 16px;
+    }
+
+    .atw-viz {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .atw-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    h4 {
+      margin: 0;
+      font-size: 15px;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+    }
+
+    .caption {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.32);
+    }
+
+    .runs-track {
+      position: relative;
+      display: flex;
+      height: 152px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0,
+          transparent 15px,
+          rgba(255, 255, 255, 0.055) 16px,
+          rgba(255, 255, 255, 0.055) 17px
+        ),
+        var(--track);
+    }
+
+    .runs-track::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.28);
+      z-index: 1;
+    }
+
+    .run-segment {
+      position: relative;
+      min-width: 3px;
+      height: 100%;
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 2;
+    }
+
+    .run-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      min-height: 16px;
+      padding: 2px 1px;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.72);
+    }
+
+    .run-segment.home .run-bar {
+      bottom: 50%;
+      align-items: flex-start;
+      border-radius: 4px 4px 0 0;
+      background: var(--nyk);
+    }
+
+    .run-segment.away .run-bar {
+      top: 50%;
+      align-items: flex-end;
+      border-radius: 0 0 4px 4px;
+      background: var(--cle);
+    }
+
+    .momentum-wrap {
+      width: min(520px, 100%);
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .axis {
+      stroke: currentColor;
+      stroke-opacity: 0.22;
+    }
+
+    .grid {
+      stroke: currentColor;
+      stroke-opacity: 0.08;
+    }
+
+    .note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="atw-viz">
+      <div class="atw-heading">
+        <h4>Scoring sequences · scoring flow</h4>
+        <div class="legend" aria-hidden="true">
+          <span><i class="swatch" style="background: var(--cle)"></i>CLE</span>
+          <span><i class="swatch" style="background: var(--nyk)"></i>NYK</span>
+        </div>
+      </div>
+      <p class="caption">Every consecutive scoring stretch — width = volume, height = points, tug-of-war layout</p>
+      <div class="runs-track" aria-label="Expected scoring runs chart">
+        <div class="run-segment away" style="flex: 5" title="CLE · Run 5-0 (Q1)">
+          <div class="run-bar" style="height: 24px">5</div>
+        </div>
+        <div class="run-segment home" style="flex: 4" title="NYK · Run 4-0 (Q1)">
+          <div class="run-bar" style="height: 21px">4</div>
+        </div>
+        <div class="run-segment away" style="flex: 9" title="CLE · Run 9-0 (Q1)">
+          <div class="run-bar" style="height: 34px">9</div>
+        </div>
+        <div class="run-segment home" style="flex: 20" title="NYK · Run 20-0 (Q2)">
+          <div class="run-bar" style="height: 60px">20</div>
+        </div>
+        <div class="run-segment away" style="flex: 6" title="CLE · Run 6-0 (Q2)">
+          <div class="run-bar" style="height: 26px">6</div>
+        </div>
+        <div class="run-segment home" style="flex: 8" title="NYK · Run 8-0 (Q3)">
+          <div class="run-bar" style="height: 31px">8</div>
+        </div>
+        <div class="run-segment home" style="flex: 12" title="NYK · Run 12-0 (Q3)">
+          <div class="run-bar" style="height: 41px">12</div>
+        </div>
+        <div class="run-segment away" style="flex: 4" title="CLE · Run 4-0 (Q4)">
+          <div class="run-bar" style="height: 21px">4</div>
+        </div>
+        <div class="run-segment home" style="flex: 7" title="NYK · Run 7-0 (Q4)">
+          <div class="run-bar" style="height: 29px">7</div>
+        </div>
+      </div>
+      <p class="note">Expected: blue NYK bars rise above the center line; wine CLE bars drop below it.</p>
+    </section>
+
+    <section class="atw-viz">
+      <div class="atw-heading">
+        <h4>Momentum (NYK − CLE)</h4>
+        <div class="legend" aria-hidden="true">
+          <span><i class="swatch" style="background: var(--cle)"></i>CLE</span>
+          <span><i class="swatch" style="background: var(--nyk)"></i>NYK</span>
+        </div>
+      </div>
+      <div class="momentum-wrap">
+        <svg viewBox="0 0 520 150" role="img" aria-label="Expected momentum chart">
+          <line class="grid" x1="16" y1="35" x2="504" y2="35" />
+          <line class="grid" x1="16" y1="75" x2="504" y2="75" />
+          <line class="grid" x1="16" y1="115" x2="504" y2="115" />
+          <line class="axis" x1="16" y1="75" x2="504" y2="75" />
+
+          <polyline
+            fill="none"
+            stroke="var(--cle)"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            points="16,64 34,68 52,61 70,72 88,69 106,78 124,82 142,88 160,96 178,101 196,93 214,99"
+          />
+          <polyline
+            fill="none"
+            stroke="var(--nyk)"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            points="214,99 232,94 250,88 268,84 286,82 304,85 322,80 340,77 358,68 376,58 394,51 412,44 430,38 448,32"
+          />
+          <polyline
+            fill="none"
+            stroke="var(--cle)"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            points="448,32 466,42 484,48 504,45"
+          />
+        </svg>
+      </div>
+      <p class="note">Expected: the momentum line switches color by team advantage instead of staying orange.</p>
+    </section>
+  </main>
+</body>
+</html>

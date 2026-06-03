@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scoring Sequences Unified Timeline (POC)</title>
+  <style>
+    :root {
+      --text: #ffffff;
+      --muted: #94a3b8;
+      --border: #334155;
+      --accent: #3b82f6; /* Home team color */
+      color-scheme: dark;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #0f172a;
+      color: var(--text);
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+    .atw-viz {
+      background: #1e293b;
+      padding: 24px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 600px;
+    }
+    h4 { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
+    
+    .atw-runs-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .atw-runs-caption {
+      margin: 0 0 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .atw-runs-axis {
+      position: relative;
+      height: 20px;
+      margin-bottom: 4px;
+    }
+    .atw-runs-axis__ticks {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .atw-quarter-marker {
+      position: absolute;
+      top: 0;
+      bottom: -86px; /* Extend into the track */
+      border-left: 1px dashed color-mix(in srgb, var(--border) 60%, transparent);
+      z-index: 0;
+    }
+    .atw-quarter-label {
+      position: absolute;
+      top: 0;
+      left: 4px;
+    }
+    .atw-runs-lane__track {
+      position: relative;
+      height: 152px; /* Increased to fit both up and down with margins */
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--border) 20%, transparent);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: stretch;
+    }
+    
+    .atw-runs-lane__track::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: color-mix(in srgb, var(--text) 20%, transparent);
+      z-index: 0;
+    }
+
+    .atw-runs-segment {
+      position: relative;
+      box-sizing: border-box;
+      cursor: pointer;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      /* Very subtle separator between segments */
+      border-left: 1px solid color-mix(in srgb, var(--text) 5%, transparent);
+      transition: opacity 0.1s ease;
+    }
+    .atw-runs-segment:hover {
+      opacity: 0.8;
+      z-index: 2;
+    }
+
+    .atw-runs-segment--home {
+      padding-bottom: 76px; /* half of 152px height */
+      align-items: flex-end;
+    }
+    .atw-runs-segment--away {
+      padding-top: 76px; /* half of 152px height */
+      align-items: flex-start;
+    }
+
+    .atw-runs-bar {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      min-height: 16px;
+      position: relative;
+    }
+    .atw-runs-segment--home .atw-runs-bar {
+      border-radius: 4px 4px 0 0;
+      align-items: flex-start;
+      padding-top: 2px;
+    }
+    .atw-runs-segment--away .atw-runs-bar {
+      border-radius: 0 0 4px 4px;
+      align-items: flex-end;
+      padding-bottom: 2px;
+    }
+
+    .atw-runs-segment__pts {
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      line-height: 1;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    }
+  </style>
+</head>
+<body>
+  <div class="atw-viz atw-runs-chart">
+    <h4>Scoring sequences · scoring flow</h4>
+    <p class="atw-runs-caption">Every consecutive scoring stretch — width = volume, height = points, tug-of-war layout</p>
+    
+    <div class="atw-runs-timeline atw-runs-timeline--unified" role="img" aria-label="Scoring sequences match timeline">
+      <!-- We remove the absolute axis since we map by sequence of points -->
+      <div class="atw-runs-lane__track atw-runs-lane__track--unified" aria-hidden="false">
+        
+        <!-- The ENTIRE match as a sequence of back-to-back scoring stretches -->
+        <!-- Width (flex) mapped to points scored to visually represent volume, height also mapped to points -->
+        
+        <div class="atw-runs-segment atw-runs-segment--away" style="flex: 5;" title="CLE: +5 pts"><div class="atw-runs-bar" style="height: 26px; background-color: #860038;"><span class="atw-runs-segment__pts">5</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--home" style="flex: 2;" title="NYK: +2 pts"><div class="atw-runs-bar" style="height: 16px; background-color: #006BB6;"><span class="atw-runs-segment__pts">2</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--away" style="flex: 8;" title="CLE: +8 pts"><div class="atw-runs-bar" style="height: 35px; background-color: #860038;"><span class="atw-runs-segment__pts">8</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--home" style="flex: 4;" title="NYK: +4 pts"><div class="atw-runs-bar" style="height: 22px; background-color: #006BB6;"><span class="atw-runs-segment__pts">4</span></div></div>
+        
+        <div class="atw-runs-segment atw-runs-segment--away" style="flex: 4;" title="CLE: +4 pts"><div class="atw-runs-bar" style="height: 22px; background-color: #860038;"><span class="atw-runs-segment__pts">4</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--home" style="flex: 4;" title="NYK: +4 pts"><div class="atw-runs-bar" style="height: 22px; background-color: #006BB6;"><span class="atw-runs-segment__pts">4</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--away" style="flex: 14;" title="CLE: +14 pts"><div class="atw-runs-bar" style="height: 60px; background-color: #860038;"><span class="atw-runs-segment__pts">14</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--home" style="flex: 2;" title="NYK: +2 pts"><div class="atw-runs-bar" style="height: 16px; background-color: #006BB6;"><span class="atw-runs-segment__pts">2</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--away" style="flex: 5;" title="CLE: +5 pts"><div class="atw-runs-bar" style="height: 26px; background-color: #860038;"><span class="atw-runs-segment__pts">5</span></div></div>
+
+        <div class="atw-runs-segment atw-runs-segment--home" style="flex: 20;" title="NYK: +20 pts"><div class="atw-runs-bar" style="height: 60px; background-color: #006BB6;"><span class="atw-runs-segment__pts">20</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--away" style="flex: 5;" title="CLE: +5 pts"><div class="atw-runs-bar" style="height: 26px; background-color: #860038;"><span class="atw-runs-segment__pts">5</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--home" style="flex: 2;" title="NYK: +2 pts"><div class="atw-runs-bar" style="height: 16px; background-color: #006BB6;"><span class="atw-runs-segment__pts">2</span></div></div>
+
+        <div class="atw-runs-segment atw-runs-segment--away" style="flex: 7;" title="CLE: +7 pts"><div class="atw-runs-bar" style="height: 31px; background-color: #860038;"><span class="atw-runs-segment__pts">7</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--home" style="flex: 12;" title="NYK: +12 pts"><div class="atw-runs-bar" style="height: 45px; background-color: #006BB6;"><span class="atw-runs-segment__pts">12</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--away" style="flex: 2;" title="CLE: +2 pts"><div class="atw-runs-bar" style="height: 16px; background-color: #860038;"><span class="atw-runs-segment__pts">2</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--home" style="flex: 8;" title="NYK: +8 pts"><div class="atw-runs-bar" style="height: 35px; background-color: #006BB6;"><span class="atw-runs-segment__pts">8</span></div></div>
+        <div class="atw-runs-segment atw-runs-segment--away" style="flex: 4;" title="CLE: +4 pts"><div class="atw-runs-bar" style="height: 22px; background-color: #860038;"><span class="atw-runs-segment__pts">4</span></div></div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

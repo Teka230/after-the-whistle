@@ -1,0 +1,10 @@
+{
+  "name": "@after-the-whistle/scripts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@after-the-whistle/core": "workspace:*",
+    "@after-the-whistle/db": "workspace:*",
+    "@after-the-whistle/providers": "workspace:*"
+  }
+}

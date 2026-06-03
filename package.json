@@ -1,0 +1,30 @@
+{
+  "name": "after-the-whistle",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "After the Whistle — ChatGPT App for post-game basketball & soccer with clickable stats",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r run build",
+    "typecheck": "pnpm -r run typecheck",
+    "test:regression": "tsx --test tests/tickets-regression.test.ts",
+    "dev:mcp": "pnpm --filter @after-the-whistle/mcp-server dev",
+    "dev:widgets": "pnpm --filter @after-the-whistle/widgets dev",
+    "ingest": "tsx scripts/ingest.ts",
+    "ingest:demo": "tsx scripts/ingest.ts --demo",
+    "db:migrate": "tsx packages/db/src/migrate.ts",
+    "up": "bash scripts/start.sh start",
+    "up:stop": "bash scripts/start.sh stop",
+    "up:restart": "bash scripts/start.sh restart",
+    "up:status": "bash scripts/start.sh status",
+    "expose": "bash scripts/expose-ngrok.sh",
+    "funnel": "bash scripts/ensure-funnel.sh"
+  },
+  "devDependencies": {
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.3"
+  }
+}
