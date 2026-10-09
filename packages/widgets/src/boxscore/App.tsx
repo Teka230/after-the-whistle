@@ -322,6 +322,7 @@ export function App() {
             points={momentum}
             homeAbbrev={homeTeam.abbreviation}
             awayAbbrev={awayTeam.abbreviation}
+            sport={game.sport}
           />
         )}
 
@@ -443,6 +444,7 @@ export function App() {
           points={momentum}
           homeAbbrev={homeTeam.abbreviation}
           awayAbbrev={awayTeam.abbreviation}
+          sport={game.sport}
         />
       )}
 
@@ -1303,7 +1305,6 @@ function defaultColumns(sport: Game["sport"]): StatColumn[] {
       { key: "shots", label: "Shots", shortLabel: "SH", clickable: true },
       { key: "shotsOn", label: "On target", shortLabel: "SOT", clickable: true },
       { key: "xg", label: "xG", shortLabel: "xG", clickable: true },
-      { key: "passes", label: "Passes", shortLabel: "PAS", clickable: true },
       { key: "fouls", label: "Fouls", shortLabel: "F", clickable: true },
       { key: "yellowCards", label: "Yellow", shortLabel: "YC", clickable: true },
       { key: "rating", label: "Rating", shortLabel: "RTG", clickable: true },

@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "description": "After the Whistle — ChatGPT App for post-game basketball & soccer with clickable stats",
+  "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22 <23"
   },
   "scripts": {
     "build": "pnpm -r run build",
@@ -24,6 +25,7 @@
     "funnel": "bash scripts/ensure-funnel.sh"
   },
   "devDependencies": {
+    "@types/node": "^22",
     "tsx": "^4.22.4",
     "typescript": "^5.9.3"
   }

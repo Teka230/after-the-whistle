@@ -1,237 +1,147 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>After The Whistle | Simulateur</title>
-    <link rel="stylesheet" href="assets/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>After the Whistle | Simulateur</title>
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <div class="logo-icon"></div>
-                After The Whistle
-            </div>
-            <div class="nav-links">
-                <a href="index.html">Accueil</a>
-                <a href="demo.html" class="active">Simulateur</a>
-                <a href="architecture.html">Architecture</a>
-                <a href="tools.html">Outils MCP</a>
-                <a href="setup.html">Installation</a>
-            </div>
-        </div>
-    </nav>
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <nav class="navbar" aria-label="Navigation principale">
+    <div class="nav-container">
+      <a class="nav-logo" href="index.html"><span class="logo-icon" aria-hidden="true"></span><span>After the Whistle</span></a>
+      <div class="nav-links">
+        <a href="index.html">Accueil</a>
+        <a href="demo.html" class="active">Simulateur</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="tools.html">Outils MCP</a>
+        <a href="setup.html">Installation</a>
+      </div>
+    </div>
+  </nav>
 
-    <main style="padding-top: 80px;">
-        <section id="demo" class="section">
-            <div class="container">
-                <div class="section-header">
-                    <div class="section-badge">Démo Interactive</div>
-                    <h2 class="section-title">Le Playground du Widget</h2>
-                    <p class="section-subtitle">Simulez le rendu de l'UI MCP dans ChatGPT. Cliquez sur les statistiques ou les phases de momentum pour voir la génération contextuelle s'adapter.</p>
+  <main id="main" class="page-section">
+    <div class="container">
+      <header class="page-header">
+        <div class="section-badge">Démo fidèle au widget</div>
+        <h1 class="page-title">Le parcours utilisateur dans ChatGPT</h1>
+        <p class="page-lede">
+          Cette page simule le comportement actuel: `show_game` hydrate le widget, les clics appellent les tools visuels, et la narration reste bornée par les faits vérifiés.
+        </p>
+      </header>
+
+      <section class="canvas-container" aria-label="Simulateur du widget">
+        <div class="canvas-ui">
+          <div class="canvas-header">
+            <div>
+              <h3>Indiana Pacers @ Oklahoma City Thunder</h3>
+              <p style="margin:4px 0 0;color:var(--muted);">Démonstration locale · payload `show_game`</p>
+            </div>
+            <div class="score-display"><span>IND 91</span><span>|</span><span style="color:var(--okc);">OKC 103</span></div>
+          </div>
+
+          <div class="canvas-tabs" role="tablist" aria-label="Vues du widget">
+            <button class="canvas-tab active" type="button" role="tab" aria-selected="true" data-tab="boxscore">Box Score</button>
+            <button class="canvas-tab" type="button" role="tab" aria-selected="false" data-tab="runs">Runs</button>
+            <button class="canvas-tab" type="button" role="tab" aria-selected="false" data-tab="momentum">Momentum</button>
+            <button class="canvas-tab" type="button" role="tab" aria-selected="false" data-tab="analysis">Analyse Focus</button>
+          </div>
+
+          <div class="view-content active" data-view="boxscore">
+            <div class="boxscore-wrap">
+              <table class="boxscore-table">
+                <thead>
+                  <tr><th>Joueur</th><th>MIN</th><th>PTS</th><th>REB</th><th>AST</th><th>+/-</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Shai Gilgeous-Alexander</td><td>38</td>
+                    <td><button class="interactive-stat selected" type="button" data-demo="sga-pts">29</button></td>
+                    <td>7</td>
+                    <td><button class="interactive-stat" type="button" data-demo="sga-ast">12</button></td>
+                    <td style="color:var(--green);">+8</td>
+                  </tr>
+                  <tr>
+                    <td>Jalen Williams</td><td>34</td><td>20</td><td>5</td><td>4</td><td style="color:var(--green);">+11</td>
+                  </tr>
+                  <tr>
+                    <td>Tyrese Haliburton</td><td>36</td><td>16</td><td>4</td>
+                    <td><button class="interactive-stat" type="button" data-demo="hali-ast">8</button></td>
+                    <td style="color:var(--red);">-12</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="view-content" data-view="runs">
+            <div class="run-bars">
+              <div class="run-row">
+                <div class="run-meta"><span>Q2</span><span>séquences détectées</span></div>
+                <div class="run-bar">
+                  <button class="run-bar-segment ind-run" style="width:18%;" type="button" data-demo="hali-ast">IND 6-0</button>
+                  <button class="run-bar-segment okc-run" style="width:52%;" type="button" data-demo="okc-run">OKC 20-0</button>
+                  <button class="run-bar-segment neutral-run" style="width:30%;" type="button" data-demo="sga-pts">trade</button>
                 </div>
-                
-                <div class="canvas-container">
-                    <!-- Simulateur UI gauche -->
-                    <div class="canvas-ui">
-                        <div class="canvas-header">
-                            <div>
-                                <h3 style="margin: 0; font-size: 1.1rem;">Indiana Pacers @ Oklahoma City Thunder</h3>
-                                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Fin de match (Q4) • Paycom Center</div>
-                            </div>
-                            <div class="score-display">
-                                <span style="color: var(--text-muted);">IND 104</span>
-                                <span style="font-size: 1.2rem; font-weight: 700; color: var(--border-light);">|</span>
-                                <span style="color: var(--accent-orange); font-weight: 700;">OKC 112</span>
-                            </div>
-                        </div>
-                        
-                        <div class="canvas-tabs">
-                            <div class="canvas-tab active" id="tab-boxscore" onclick="switchWidgetTab('boxscore')">Box Score</div>
-                            <div class="canvas-tab" id="tab-runs" onclick="switchWidgetTab('runs')">Séquences (Runs)</div>
-                            <div class="canvas-tab" id="tab-momentum" onclick="switchWidgetTab('momentum')">Momentum</div>
-                            <div class="canvas-tab" id="tab-focus" onclick="switchWidgetTab('focus')">Analyse Focus</div>
-                        </div>
-
-                        <!-- Views -->
-                        <div class="view-content active" id="view-boxscore">
-                            <table class="boxscore-table">
-                                <thead>
-                                    <tr>
-                                        <th style="text-align: left;">Joueur</th>
-                                        <th>MIN</th>
-                                        <th>PTS</th>
-                                        <th>REB</th>
-                                        <th>AST</th>
-                                        <th>+/-</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td style="text-align: left; font-weight: 600;">S. Gilgeous-Alexander</td>
-                                        <td>34</td>
-                                        <td><div class="interactive-stat selected" id="stat-sga-pts" onclick="selectStat('sga-pts')">29</div></td>
-                                        <td>6</td>
-                                        <td><div class="interactive-stat" id="stat-sga-ast" onclick="selectStat('sga-ast')">12</div></td>
-                                        <td style="color: #4ade80;">+18</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: left; font-weight: 600;">C. Holmgren</td>
-                                        <td>32</td>
-                                        <td>21</td>
-                                        <td>14</td>
-                                        <td>3</td>
-                                        <td style="color: #4ade80;">+15</td>
-                                    </tr>
-                                    <tr style="border-top: 1px solid rgba(255,255,255,0.05);">
-                                        <td style="text-align: left; font-weight: 600;">T. Haliburton</td>
-                                        <td>35</td>
-                                        <td>18</td>
-                                        <td>4</td>
-                                        <td><div class="interactive-stat" id="stat-hali-ast" onclick="selectStat('hali-ast')">8</div></td>
-                                        <td style="color: #f87171;">-12</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="view-content" id="view-runs">
-                            <div class="runs-container">
-                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Séquences de points consécutives identifiées par le moteur analytique.</p>
-                                
-                                <div style="display: flex; flex-direction: column; gap: 12px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
-                                        <span>Début Q2</span>
-                                        <span>Mi-temps</span>
-                                    </div>
-                                    <!-- Bar de runs avec segments interactifs -->
-                                    <div class="run-bar">
-                                        <div class="run-bar-segment ind-run" style="width: 15%;" onclick="selectRun('ind-run-1')">IND 8-0</div>
-                                        <div class="run-bar-segment okc-run" style="width: 45%;" onclick="selectRun('okc-run-2')">OKC 20-0</div>
-                                        <div class="run-bar-segment neutral-run" style="width: 40%;" onclick="selectRun('neutral-1')">Équilibré</div>
-                                    </div>
-                                    
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 12px;">
-                                        <span>Début Q3</span>
-                                        <span>Fin Q3</span>
-                                    </div>
-                                    <div class="run-bar">
-                                        <div class="run-bar-segment okc-run" style="width: 30%;" onclick="selectRun('okc-run-3')">OKC 12-0</div>
-                                        <div class="run-bar-segment neutral-run" style="width: 25%;" onclick="selectRun('neutral-2')">Équilibré</div>
-                                        <div class="run-bar-segment ind-run" style="width: 45%;" onclick="selectRun('ind-run-4')">IND 14-0</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="view-content" id="view-momentum">
-                            <!-- SVG Momentum Graphique abstrait cliquable -->
-                            <div style="width: 100%; aspect-ratio: 2/1; position: relative;">
-                                <svg width="100%" height="100%" viewBox="0 0 400 200">
-                                    <line x1="0" y1="100" x2="400" y2="100" stroke="rgba(255,255,255,0.1)" stroke-dasharray="4,4" />
-                                    <!-- The curve -->
-                                    <path d="M 0 100 Q 50 120 100 110 T 200 40 T 300 130 T 400 80" fill="none" stroke="#fbbf24" stroke-width="3" />
-                                    
-                                    <!-- Interactive nodes on the curve -->
-                                    <circle cx="200" cy="40" r="8" fill="#f97316" class="arch-node" style="cursor: pointer;" onclick="selectMomentumPoint('q2-run')" />
-                                    <text x="200" y="25" fill="#f97316" font-size="10" text-anchor="middle">Pic OKC (Q2)</text>
-                                    
-                                    <circle cx="300" cy="130" r="8" fill="#a0aabf" class="arch-node" style="cursor: pointer;" onclick="selectMomentumPoint('q3-ind')" />
-                                    <text x="300" y="150" fill="#a0aabf" font-size="10" text-anchor="middle">Réponse IND (Q3)</text>
-                                </svg>
-                            </div>
-                        </div>
-
-                        <div class="view-content" id="view-focus">
-                            <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 16px;">
-                                <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--border-light); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">SGA</div>
-                                <div>
-                                    <h4 style="margin: 0; font-size: 1.1rem; color: var(--accent-orange);">Shai Gilgeous-Alexander</h4>
-                                    <div style="font-size: 0.85rem; color: var(--text-muted);">Match Rating: 9.4/10 • Impact offensif Majeur</div>
-                                </div>
-                            </div>
-                            <div class="explain-bullet">
-                                <span class="explain-bullet-dot">!</span>
-                                <div><strong>Thèse de l'IA :</strong> SGA a dicté le rythme (Pace: 94) forçant Indiana dans un match sur demi-terrain où son pull-up midrange a découpé la défense en drop.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Panneau de contexte droit -->
-                    <div class="canvas-context">
-                        <div id="explain-box">
-                            <!-- Injected by JS on tab switch -->
-                            <div class="tool-trigger-box">
-                                <span class="tool-trigger-label">Appel MCP principal</span>
-                                show_game(gameId: "basket:0022400500")
-                            </div>
-                            <p class="explain-text" style="margin-top: 10px;">
-                                Lorsque l'utilisateur demande le débriefing d'un match, ChatGPT appelle <code>show_game</code>.
-                            </p>
-                            <div class="explain-bullet">
-                                <span class="explain-bullet-dot">1</span>
-                                <div>Le serveur MCP interroge SQLite et ingeste les données si nécessaire.</div>
-                            </div>
-                            <div class="explain-bullet">
-                                <span class="explain-bullet-dot">2</span>
-                                <div>Les statistiques individuelles dans le tableau de box score deviennent <strong>cliquables</strong>.</div>
-                            </div>
-                        </div>
-
-                        <div style="border-top: 1px solid var(--border-light); margin: 20px 0;"></div>
-
-                        <div style="margin-bottom: 8px; font-size: 0.75rem; letter-spacing: 0.5px; color: var(--accent-orange); text-transform: uppercase; font-weight: 700;" id="context-kicker">Contexte de Statistique (PTS)</div>
-                        <h4 style="margin: 0 0 16px 0; font-size: 1.1rem;" id="context-headline">S. Gilgeous-Alexander : 29 points</h4>
-                        
-                        <div id="facts-list" style="display: flex; flex-direction: column; gap: 8px;">
-                            <div class="fact-row">OKC a mené un run de 20-0 au Q2, SGA a inscrit 8 de ces points.</div>
-                            <div class="fact-row">SGA a tiré à 11/18 (61%) dont 3/4 sur des pull-ups à mi-distance.</div>
-                            <div class="fact-row">OKC affiche un différentiel de +18 avec SGA sur le terrain.</div>
-                        </div>
-
-                        <!-- Narrative controls -->
-                        <div style="margin-top: 24px;">
-                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">TON DU LLM</div>
-                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <div class="tone-pill active" id="tone-analyst" onclick="changeTone('analyst')">Coach/Analyste</div>
-                                <div class="tone-pill" id="tone-fan" onclick="changeTone('fan')">Supporter</div>
-                                <div class="tone-pill" id="tone-bar" onclick="changeTone('bar')">Café du sport</div>
-                                <div class="tone-pill" id="tone-pundit" onclick="changeTone('pundit')">Éditorialiste</div>
-                                <div class="tone-pill" id="tone-debate" onclick="changeTone('debate')">Débat</div>
-                            </div>
-                            <div class="mock-llm-response" id="narrative-box">
-                                Gilgeous-Alexander a opéré avec un excellent spacing en isolation. Son efficacité sur pull-up à mi-distance (1.50 PPP) a puni la défense d'Indiana en 'drop', créant des lignes de pénétration pour ses coéquipiers.
-                            </div>
-                        </div>
-                    </div>
+              </div>
+              <div class="run-row">
+                <div class="run-meta"><span>Q4</span><span>priorisé dans les prompts</span></div>
+                <div class="run-bar">
+                  <button class="run-bar-segment okc-run" style="width:44%;" type="button" data-demo="okc-run">OKC 13-0</button>
+                  <button class="run-bar-segment neutral-run" style="width:56%;" type="button" data-demo="sga-ast">réponse fragmentée</button>
                 </div>
+              </div>
             </div>
-        </section>
-    </main>
+          </div>
 
-    <footer>
-        <div class="container">
-            <svg class="footer-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-                <rect width="64" height="64" rx="14" fill="#0f1115"/>
-                <defs>
-                    <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#fbbf24"/>
-                        <stop offset="100%" stop-color="#f97316"/>
-                    </linearGradient>
-                </defs>
-                <path d="M18 30c0-4.5 3.5-8 8-8.5l2.2-4.5h6.8l1.8 3.6c4 .6 7 4 7 8.4v.4c0 4.8-4 8.6-9 8.6h-9c-4.5 0-8-3.5-8-8z" fill="url(#g3)"/>
-                <path d="M42 26c4 0 7 1.6 9 4 1.6 2 2.4 4.4 2.4 6.4" fill="none" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
-                <path d="M46 20c5.6 1 10 4.4 12.4 9" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>
+          <div class="view-content" data-view="momentum">
+            <svg class="momentum-svg" viewBox="0 0 420 210" role="img" aria-label="Courbe de momentum simulée">
+              <line x1="20" y1="105" x2="400" y2="105" stroke="rgba(255,255,255,.16)" stroke-dasharray="5 5"/>
+              <path d="M20 118 C80 140 112 132 150 110 C190 86 210 42 252 48 C298 56 312 150 360 136 C382 130 392 104 400 90" fill="none" stroke="#fbbf24" stroke-width="4"/>
+              <circle class="momentum-point" cx="252" cy="48" r="9" fill="#38bdf8"/>
+              <text x="252" y="30" fill="#c8d3df" text-anchor="middle" font-size="12">run OKC</text>
+              <circle class="momentum-point" cx="360" cy="136" r="9" fill="#f59e0b"/>
+              <text x="360" y="160" fill="#c8d3df" text-anchor="middle" font-size="12">réponse IND</text>
             </svg>
-            <p style="font-weight: 700; color: var(--text-main); margin-bottom: 8px;">After the Whistle</p>
-            <p style="margin: 0; font-size: 0.8rem;">“When play stops, the real talk starts.”</p>
-            <p style="margin: 16px 0 0; font-size: 0.72rem; color: rgba(255,255,255,0.25);">© 2026 After the Whistle. Présentation Interactive du Connecteur MCP.</p>
+          </div>
+
+          <div class="view-content" data-view="analysis">
+            <div class="focus-card">
+              <div class="avatar">SGA</div>
+              <div>
+                <strong>show_analysis · player_focus</strong>
+                <p style="margin:4px 0 0;color:var(--muted);">Une vue autonome peut afficher thèse, preuves, timeline et verdict sans recopier toute la box score.</p>
+              </div>
+            </div>
+          </div>
         </div>
-    </footer>
-    <script src="assets/app.js"></script>
+
+        <aside class="canvas-context">
+          <div class="tool-trigger-box">
+            <span class="tool-trigger-label">Tool appelé</span>
+            <code data-demo-tool>get_stat_context(gameId, entityId, statKey)</code>
+          </div>
+
+          <div style="height:18px;"></div>
+          <div class="context-kicker" data-demo-kicker>Contexte Statistique</div>
+          <h2 class="context-headline" data-demo-headline>Shai Gilgeous-Alexander · 29 PTS</h2>
+          <div class="facts-list" data-demo-facts></div>
+
+          <div class="tone-row" aria-label="Tons de narration">
+            <button class="tone-pill active" type="button" data-tone="analyst">Analyst</button>
+            <button class="tone-pill" type="button" data-tone="fan">Fan</button>
+            <button class="tone-pill" type="button" data-tone="bar">Bar</button>
+            <button class="tone-pill" type="button" data-tone="pundit">Pundit</button>
+            <button class="tone-pill" type="button" data-tone="debate">Debate</button>
+          </div>
+          <div class="mock-llm-response" data-demo-narrative aria-live="polite"></div>
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <footer><div class="container"><p>Simulation statique du flux réel `show_game` → clic widget → contexte vérifié.</p></div></footer>
+  <script src="assets/app.js"></script>
 </body>
 </html>

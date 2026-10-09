@@ -15,6 +15,20 @@ PID_DIR="${SUPPORT_DIR}/pids"
 WHISTLE_PID="${PID_DIR}/mcp.pid"
 WHISTLE_LOG="${LOG_DIR}/mcp.log"
 
+ensure_node_runtime() {
+  if [[ -s "${HOME}/.nvm/nvm.sh" ]]; then
+    export NVM_DIR="${HOME}/.nvm"
+    # shellcheck disable=SC1091
+    source "${NVM_DIR}/nvm.sh"
+    nvm use 22 >/dev/null 2>&1 || nvm use default >/dev/null 2>&1 || true
+  fi
+
+  local node22_bin="${HOME}/.nvm/versions/node/v22.22.2/bin"
+  if [[ -d "${node22_bin}" ]]; then
+    export PATH="${node22_bin}:${PATH}"
+  fi
+}
+
 load_env() {
   if [[ -f "${ROOT}/.env" ]]; then
     # shellcheck disable=SC1091
@@ -116,6 +130,7 @@ show_log_tail() {
 }
 
 resolve_pnpm() {
+  ensure_node_runtime
   if [[ -n "${WHISTLE_PNPM:-}" && -x "${WHISTLE_PNPM}" ]]; then
     echo "${WHISTLE_PNPM}"
     return 0
@@ -172,7 +187,9 @@ start_mcp() {
     env PATH="${pnpm_dir}:${PATH}" MCP_PORT="${WHISTLE_PORT}" MCP_BASE_PATH="${mcp_base}" \
     "${pnpm_bin}" --filter @after-the-whistle/mcp-server run start
 
-  for _ in $(seq 1 40); do
+  local wait_seconds="${WHISTLE_START_TIMEOUT_SECONDS:-120}"
+  local wait_iterations=$((wait_seconds * 2))
+  for _ in $(seq 1 "${wait_iterations}"); do
     if whistle_port_ready "${WHISTLE_PORT}"; then
       local mcp_path="/mcp"
       [[ -n "${mcp_base}" ]] && mcp_path="${mcp_base%/}/mcp"
@@ -190,7 +207,7 @@ start_mcp() {
     sleep 0.5
   done
 
-  echo "❌ MCP did not respond in time — see ${WHISTLE_LOG}"
+  echo "❌ MCP did not respond within ${wait_seconds}s — see ${WHISTLE_LOG}"
   show_log_tail "${WHISTLE_LOG}"
   exit 1
 }
@@ -235,22 +252,29 @@ ensure_demo_data() {
 cmd_start() {
   start_mcp
   ensure_demo_data
-  local host="${TAILSCALE_HOST:-macbook-pro-m2-de-teka.tailda6e2e.ts.net}"
+  local host="${TAILSCALE_HOST:-}"
   local funnel_path="${WHISTLE_FUNNEL_PATH:-/whistle}"
   local mcp_path="/mcp"
   [[ -n "${MCP_BASE_PATH:-}" ]] && mcp_path="${MCP_BASE_PATH%/}/mcp"
   echo ""
   if [[ -n "${MCP_BASE_PATH:-}" ]]; then
-    echo "ChatGPT (Tailscale, même hostname que Harness):"
-    echo "  https://${host}${funnel_path}/mcp"
-    echo "  → pnpm run funnel  (ou npm run funnel depuis ProjectHarness si les deux tournent)"
+    if [[ -n "${host}" ]]; then
+      echo "Tailscale dev URL: https://${host}${funnel_path}/mcp"
+      echo "  → pnpm run funnel (developer machine only)"
+    else
+      echo "Tailscale dev URL not configured. Set TAILSCALE_HOST before using pnpm run funnel."
+    fi
   else
     echo "ChatGPT (local uniquement): http://127.0.0.1:${WHISTLE_PORT}/mcp"
     echo "Pour Tailscale: MCP_BASE_PATH=${funnel_path} dans .env puis pnpm run up:restart && pnpm run funnel"
   fi
   if port_open "${HARNESS_PORT}"; then
     echo ""
-    echo "ℹ Project Harness :${HARNESS_PORT} — https://${host}/mcp"
+    if [[ -n "${host}" ]]; then
+      echo "ℹ Project Harness :${HARNESS_PORT} — https://${host}/mcp"
+    else
+      echo "ℹ Project Harness :${HARNESS_PORT} — local service"
+    fi
   fi
 }
 
@@ -265,8 +289,12 @@ cmd_status() {
     [[ -n "${MCP_BASE_PATH:-}" ]] && mcp_path="${MCP_BASE_PATH%/}/mcp"
     echo "✓ MCP  http://127.0.0.1:${WHISTLE_PORT}${mcp_path}"
     if [[ -n "${MCP_BASE_PATH:-}" ]]; then
-      local host="${TAILSCALE_HOST:-macbook-pro-m2-de-teka.tailda6e2e.ts.net}"
-      echo "     public https://${host}${WHISTLE_FUNNEL_PATH:-/whistle}/mcp (après pnpm run funnel)"
+      local host="${TAILSCALE_HOST:-}"
+      if [[ -n "${host}" ]]; then
+        echo "     dev tunnel https://${host}${WHISTLE_FUNNEL_PATH:-/whistle}/mcp"
+      else
+        echo "     set TAILSCALE_HOST to configure the developer tunnel URL"
+      fi
     fi
   else
     echo "✗ MCP  inactive (:${WHISTLE_PORT})"
@@ -291,7 +319,7 @@ cmd_restart() {
   local pnpm_dir
   pnpm_dir="$(dirname "${pnpm_bin}")"
   echo "→ Rebuilding packages…"
-  (cd "${ROOT}" && PATH="${pnpm_dir}:${PATH}" "${pnpm_bin}" -r run build)
+  (cd "${ROOT}" && PATH="${pnpm_dir}:${PATH}" "${pnpm_bin}" -r --workspace-concurrency=1 run build)
   cmd_start
 }
 

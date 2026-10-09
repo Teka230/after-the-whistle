@@ -13,7 +13,7 @@
     "@after-the-whistle/db": "workspace:*",
     "@after-the-whistle/providers": "workspace:*",
     "@modelcontextprotocol/ext-apps": "^0.2.2",
-    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@modelcontextprotocol/sdk": "1.29.0",
     "express": "^5.1.0",
     "zod": "^3.24.4",
     "iconv-lite": "^0.6.3"

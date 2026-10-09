@@ -94,7 +94,8 @@ export type ContextBlockKind =
   | "domination_period"
   | "cards_period"
   | "shot_profile"
-  | "team_match_stats";
+  | "team_match_stats"
+  | "substitution_impact";
 
 /** Verified team-level match stats (foot). Values indexed [home, away]. */
 export interface TeamMatchStats {

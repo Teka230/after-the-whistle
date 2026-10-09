@@ -17,7 +17,12 @@ mcp_funnel_load_env
 WHISTLE_PORT="${MCP_PORT:-8788}"
 WHISTLE_FUNNEL_PATH="${WHISTLE_FUNNEL_PATH:-/whistle}"
 WHISTLE_STATUS_PATH="${MCP_BASE_PATH:-${WHISTLE_FUNNEL_PATH}}"
-PUBLIC_HOST="${TAILSCALE_HOST:-macbook-pro-m2-de-teka.tailda6e2e.ts.net}"
+PUBLIC_HOST="${TAILSCALE_HOST:-}"
+
+if [[ -z "${PUBLIC_HOST}" ]]; then
+  echo "❌ Set TAILSCALE_HOST to your own tailnet hostname before using this local development tunnel."
+  exit 1
+fi
 
 echo "→ After the Whistle local (:${WHISTLE_PORT}, base ${WHISTLE_STATUS_PATH})…"
 if ! mcp_whistle_local_ok "${WHISTLE_PORT}" "${WHISTLE_STATUS_PATH}"; then
