@@ -6,9 +6,10 @@ interface Props {
   points: MomentumPoint[];
   homeAbbrev?: string;
   awayAbbrev?: string;
+  sport?: "basket" | "foot";
 }
 
-export function MomentumChart({ points, homeAbbrev = "HOME", awayAbbrev = "AWAY" }: Props) {
+export function MomentumChart({ points, homeAbbrev = "HOME", awayAbbrev = "AWAY", sport = "basket" }: Props) {
   const [hovered, setHovered] = useState<{
     x: number;
     y: number;
@@ -145,7 +146,10 @@ export function MomentumChart({ points, homeAbbrev = "HOME", awayAbbrev = "AWAY"
         >
           <div className="atw-momentum-tooltip__head">
             <span className="atw-tooltip-clock">
-              {hovered.point.period <= 4 ? `Q${hovered.point.period}` : `OT${hovered.point.period - 4}`} {hovered.point.clock}
+              {sport === "foot"
+                ? (hovered.point.period <= 2 ? `H${hovered.point.period}` : `ET${hovered.point.period - 2}`)
+                : (hovered.point.period <= 4 ? `Q${hovered.point.period}` : `OT${hovered.point.period - 4}`)
+              } {hovered.point.clock}
             </span>
             <span className="atw-tooltip-score">
               {hovered.point.awayScore} − {hovered.point.homeScore}

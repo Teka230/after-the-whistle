@@ -3,6 +3,7 @@ import type {
   ContextBlock,
   Game,
   TimelineEvent,
+  TeamMatchStats,
 } from "../domain.js";
 
 function truncateGoalLabel(text: string, maxLen: number): string {
@@ -133,16 +134,96 @@ export function detectFootPlayerSlices(
     }));
 }
 
+export function detectSubstitutionImpacts(
+  game: Game,
+  timeline: TimelineEvent[],
+  boxLines: BoxLine[]
+): ContextBlock[] {
+  const blocks: ContextBlock[] = [];
+  const subs = timeline.filter((e) => e.type === "substitution" || e.description.toLowerCase().includes("substitution"));
+
+  for (const sub of subs) {
+    const subsequentEvents = timeline.filter((e) => e.order > sub.order && e.order <= sub.order + 15);
+
+    for (const actorId of sub.actorIds) {
+      const line = boxLines.find(l => l.entityId === actorId);
+      if (!line) continue;
+
+      const impacts = subsequentEvents.filter((e) =>
+        e.actorIds.includes(actorId) &&
+        (e.type === "goal" || e.description.toLowerCase().includes("assist") || e.description.toLowerCase().includes("shot"))
+      );
+
+      if (impacts.length > 0) {
+        blocks.push({
+          id: `${game.id}:sub_impact:${actorId}:${sub.order}`,
+          gameId: game.id,
+          sport: "foot",
+          kind: "substitution_impact",
+          label: `Super Sub: ${line.entityName}`,
+          summaryText: `${line.entityName} came on at ${sub.clock} and made an immediate impact.\nImpact plays:\n${impacts.map(e => `[${e.clock}] ${e.description}`).join("\n")}`,
+          entityIds: [actorId],
+          period: sub.period,
+          payload: { actorId },
+        });
+      }
+    }
+  }
+  return blocks;
+}
+
+export function detectHoldup(
+  game: Game,
+  teamStats: TeamMatchStats | null | undefined
+): ContextBlock[] {
+  if (!teamStats || !teamStats.xg) return [];
+  const [homeXg, awayXg] = teamStats.xg;
+
+  const blocks: ContextBlock[] = [];
+  const scoreDiff = game.homeScore - game.awayScore;
+  const xgDiff = homeXg - awayXg;
+
+  // Hold-up if team wins but has > 1.0 less xG
+  if (scoreDiff > 0 && xgDiff <= -1.0) {
+    blocks.push({
+      id: `${game.id}:holdup`,
+      gameId: game.id,
+      sport: "foot",
+      kind: "xg_swing",
+      label: `Hold-Up: ${game.homeTeam.abbreviation} wins against the run of play`,
+      summaryText: `${game.homeTeam.name} won ${game.homeScore}-${game.awayScore} despite generating much less expected goals (${homeXg.toFixed(1)} vs ${awayXg.toFixed(1)}). A true smash and grab.`,
+      entityIds: [],
+      payload: { xgDiff, scoreDiff },
+    });
+  } else if (scoreDiff < 0 && xgDiff >= 1.0) {
+    blocks.push({
+      id: `${game.id}:holdup`,
+      gameId: game.id,
+      sport: "foot",
+      kind: "xg_swing",
+      label: `Hold-Up: ${game.awayTeam.abbreviation} wins against the run of play`,
+      summaryText: `${game.awayTeam.name} won ${game.awayScore}-${game.homeScore} despite generating much less expected goals (${awayXg.toFixed(1)} vs ${homeXg.toFixed(1)}). A true smash and grab.`,
+      entityIds: [],
+      payload: { xgDiff, scoreDiff },
+    });
+  }
+
+  return blocks;
+}
+
 export function computeFootContextBlocks(
   game: Game,
   boxLines: BoxLine[],
-  timeline: TimelineEvent[]
+  timeline: TimelineEvent[],
+  teamStats?: TeamMatchStats | null
 ): ContextBlock[] {
   return [
     ...detectGoalSequences(game, timeline),
     ...detectDominationPeriods(game, timeline),
     ...detectCardsPeriods(game, timeline),
     ...detectFootPlayerSlices(game, boxLines),
+    ...detectSubstitutionImpacts(game, timeline, boxLines),
+    ...detectHoldup(game, teamStats),
   ];
 }
 
@@ -166,10 +247,14 @@ export function resolveFootStatContext(
         statKey === "yellowCards" ||
         b.entityIds.includes(entityId))
   );
+  const subBlocks = blocks.filter(
+    (b) => b.kind === "substitution_impact" && b.entityIds.includes(entityId)
+  );
   const ids = [
     ...(playerBlock ? [playerBlock.id] : []),
     ...goalBlocks.map((b) => b.id),
     ...cardBlocks.map((b) => b.id),
+    ...subBlocks.map((b) => b.id),
   ];
   if (ids.length === 0) ids.push(`${gameId}:player:${entityId}`);
 
@@ -195,17 +280,35 @@ export function resolveFootStatContext(
 }
 
 export function buildFootMomentum(
-  _game: Game,
+  game: Game,
   timeline: TimelineEvent[]
 ): import("../domain.js").MomentumPoint[] {
-  const events = timeline.filter((e) => e.type === "goal" || e.homeScore + e.awayScore > 0);
-  return events.map((e) => ({
-    order: e.order,
-    clock: e.clock,
-    period: e.period,
-    homeScore: e.homeScore,
-    awayScore: e.awayScore,
-    value: e.homeScore - e.awayScore,
-    description: e.description,
-  }));
+  let currentValue = 0;
+  return timeline.map((e) => {
+    const lower = e.description.toLowerCase();
+    let swing = 0;
+
+    if (e.type === "goal") swing = 2;
+    else if (lower.includes("shot") || lower.includes("header") || lower.includes("save")) swing = 0.5;
+    else if (lower.includes("corner")) swing = 0.2;
+    else if (lower.includes("foul") || lower.includes("card")) swing = 0.1;
+
+    if (swing > 0 && e.teamId === game.homeTeam.id) {
+      currentValue += swing;
+    } else if (swing > 0 && e.teamId === game.awayTeam.id) {
+      currentValue -= swing;
+    }
+
+    currentValue *= 0.96;
+
+    return {
+      order: e.order,
+      clock: e.clock,
+      period: e.period,
+      homeScore: e.homeScore,
+      awayScore: e.awayScore,
+      value: Number(currentValue.toFixed(2)),
+      description: swing > 0 ? e.description : undefined,
+    };
+  });
 }

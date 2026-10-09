@@ -139,8 +139,8 @@ export async function discoverGame(input: {
     };
   }
 
-  const isFootExplicit = FOOT_ALIASES.has(qLower) || sport === "foot";
-  if (isFootExplicit && !parsed.isFootballHint) {
+  const isGenericFoot = FOOT_ALIASES.has(qLower) && parsed.nbaTeamAbbrs.length === 0;
+  if (isGenericFoot) {
     try {
       const games = await listRecentFootFixtures(10);
       if (games.length === 1) return { kind: "resolved", gameId: games[0]!.gameId };
@@ -153,7 +153,7 @@ export async function discoverGame(input: {
     }
     return {
       kind: "not_found",
-      message: "No soccer fixtures found. Set API_FOOTBALL_KEY for live foot.",
+      message: "No soccer fixtures found.",
     };
   }
 
@@ -188,9 +188,7 @@ export async function discoverGame(input: {
   }
 
   let footMatches: FixtureMatch[] = [];
-  if (process.env.API_FOOTBALL_KEY) {
-    footMatches = await searchFootFixtures(q, datesSearched, 6).catch(() => []);
-  }
+  footMatches = await searchFootFixtures(q, datesSearched, 6).catch(() => []);
   if (footMatches.length === 1 && basketMatches.length === 0) {
     return { kind: "resolved", gameId: footMatches[0]!.gameId };
   }
@@ -211,7 +209,7 @@ export async function discoverGame(input: {
        return {
          kind: "not_found",
          meta,
-         message: `No soccer fixtures found for "${q}". Dates searched: ${parsed.dates.join(", ")}.${process.env.API_FOOTBALL_KEY ? "" : " (API_FOOTBALL_KEY missing)"}`
+         message: `No soccer fixtures found for "${q}". Dates searched: ${parsed.dates.join(", ")}.`
        };
     }
     const totalOnBoard = Object.values(scoreboardCounts ?? {}).reduce(
@@ -233,15 +231,15 @@ export async function discoverGame(input: {
     return {
       kind: "not_found",
       meta,
-      message: `No soccer matches found for "${q}".${process.env.API_FOOTBALL_KEY ? "" : " API_FOOTBALL_KEY missing."}`
+      message: `No soccer matches found for "${q}".`
     };
   }
 
-  if (!process.env.API_FOOTBALL_KEY && basketMatches.length === 0) {
+  if (basketMatches.length === 0 && footMatches.length === 0) {
     return notFoundNba(
       q,
       meta,
-      "NBA scoreboard empty or unreachable; add API_FOOTBALL_KEY for soccer."
+      "Scoreboards empty or unreachable."
     );
   }
 

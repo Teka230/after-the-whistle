@@ -82,14 +82,6 @@ function sessionIdFromRequest(req: Request): string | undefined {
   return undefined;
 }
 
-function removeTransport(sessionId: string) {
-  const active = transports.get(sessionId);
-  if (!active) return;
-  transports.delete(sessionId);
-  void active.transport.close();
-  void active.server.close();
-}
-
 async function handleMcpPost(req: Request, res: Response) {
   const parsedBody = req.body;
   const sessionId = sessionIdFromRequest(req);
@@ -130,11 +122,9 @@ async function handleMcpPost(req: Request, res: Response) {
 
   transport.onclose = () => {
     const sid = transport.sessionId;
-    if (sid) {
-      transports.delete(sid);
+    if (sid && transports.delete(sid)) {
       console.log(`[mcp] session closed ${sid}`);
     }
-    void server.close();
   };
 
   await server.connect(transport);
@@ -159,10 +149,19 @@ async function handleMcpDelete(req: Request, res: Response) {
     return;
   }
   await existing.transport.handleRequest(req, res);
-  if (sessionId) removeTransport(sessionId);
 }
 
-const app = createMcpExpressApp({ host: "0.0.0.0" });
+const renderHostname = process.env.RENDER_EXTERNAL_HOSTNAME?.trim();
+const configuredAllowedHosts = (process.env.MCP_ALLOWED_HOSTS ?? "")
+  .split(",")
+  .map((host) => host.trim())
+  .filter(Boolean);
+const allowedHosts = [...new Set([renderHostname, ...configuredAllowedHosts].filter(Boolean))] as string[];
+const bindHost = process.env.HOST ?? (renderHostname ? "0.0.0.0" : "127.0.0.1");
+const app = createMcpExpressApp({
+  host: bindHost,
+  ...(bindHost === "0.0.0.0" && allowedHosts.length > 0 ? { allowedHosts } : {}),
+});
 
 const mcpCors = (_req: Request, res: Response, next: () => void) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -205,14 +204,15 @@ app.post(MCP_PATH, mcpCors, handleMcpPost);
 app.get(MCP_PATH, mcpCors, handleMcpGet);
 app.delete(MCP_PATH, mcpCors, handleMcpDelete);
 
-const port = Number(process.env.MCP_PORT ?? 8788);
-app.listen(port, "0.0.0.0", () => {
+// Hosted platforms inject PORT. MCP_PORT keeps the explicit local override.
+const port = Number(process.env.MCP_PORT ?? process.env.PORT ?? 8788);
+app.listen(port, bindHost, () => {
   const toolContract = buildToolContract();
   console.log(`AFTER_THE_WHISTLE MCP CONTRACT ${toolContract.version} LOADED`);
   console.log(`AFTER_THE_WHISTLE MCP SCHEMA_HASH ${toolContract.hash}`);
   console.log(`After the Whistle MCP http://127.0.0.1:${port}${MCP_PATH}`);
   console.log(`Status http://127.0.0.1:${port}${STATUS_PATH}`);
   if (BASE_PATH) {
-    console.log(`Base path ${BASE_PATH} (Tailscale Funnel: https://<host>${MCP_PATH})`);
+    console.log(`HTTP base path ${BASE_PATH}; MCP path ${MCP_PATH}`);
   }
 });

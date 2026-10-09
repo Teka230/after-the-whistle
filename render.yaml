@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: after-the-whistle
+    runtime: docker
+    region: frankfurt
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /whistle/
+    autoDeploy: true
+    envVars:
+      - key: MCP_BASE_PATH
+        value: /whistle
+      - key: AFTER_THE_WHISTLE_DB_PATH
+        value: /tmp/after-the-whistle.db

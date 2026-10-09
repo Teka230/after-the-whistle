@@ -9,7 +9,7 @@ import {
 import { openDatabase } from "./connection.js";
 import { GameRepository } from "./repository.js";
 
-/** Offline demo data when NBA / API-Football are unavailable */
+/** Offline demo data when the live NBA / ESPN providers are unavailable */
 export function seedDemoGames(dbPath: string): void {
   const repo = new GameRepository(openDatabase(dbPath));
 

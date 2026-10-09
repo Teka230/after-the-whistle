@@ -2,9 +2,9 @@
   "name": "After the Whistle",
   "slug": "after-the-whistle",
   "tagline": "When play stops, the real talk starts.",
-  "description": "Post-game basketball and soccer talk — clickable box score, standalone visual analysis, deterministic insight engine, verified play-by-play context in chat. Contract: 2026-06-02.4",
+  "description": "Post-game basketball and soccer analysis with a clickable box score, evidence-backed insights, and visual context in ChatGPT.",
   "mcp": {
-    "url": "https://macbook-pro-m2-de-teka.tailda6e2e.ts.net/whistle/mcp",
+    "url": "https://YOUR-RENDER-SERVICE.onrender.com/whistle/mcp",
     "tools": [
       "show_game",
       "show_analysis",

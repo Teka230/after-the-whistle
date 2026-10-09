@@ -1,45 +1,4 @@
 import type { ContextBlock, TeamMatchStats } from "@after-the-whistle/core";
-import type { FixtureTeamStatsPayload } from "./api-football.js";
-
-function statValue(
-  stats: FixtureTeamStatsPayload["statistics"],
-  type: string
-): number | undefined {
-  const row = stats.find((s) => s.type === type);
-  if (row?.value == null) return undefined;
-  if (typeof row.value === "number") return row.value;
-  const parsed = Number(String(row.value).replace("%", ""));
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-/** Map API-Football team statistics to [home, away] pairs. */
-export function normalizeFixtureTeamStats(
-  payload: FixtureTeamStatsPayload[],
-  homeTeamId: number,
-  awayTeamId: number
-): TeamMatchStats {
-  const home = payload.find((t) => t.team.id === homeTeamId)?.statistics ?? [];
-  const away = payload.find((t) => t.team.id === awayTeamId)?.statistics ?? [];
-
-  const pair = (type: string): [number, number] | undefined => {
-    const h = statValue(home, type);
-    const a = statValue(away, type);
-    if (h == null && a == null) return undefined;
-    return [h ?? 0, a ?? 0];
-  };
-
-  return {
-    possession: pair("Ball Possession"),
-    shots: pair("Total Shots"),
-    shotsOn: pair("Shots on Goal"),
-    passes: pair("Total passes"),
-    passAccuracy: pair("Passes %"),
-    corners: pair("Corner Kicks"),
-    fouls: pair("Fouls"),
-    yellowCards: pair("Yellow Cards"),
-    saves: pair("Goalkeeper Saves"),
-  };
-}
 
 export function buildTeamStatsContextBlock(
   gameId: string,

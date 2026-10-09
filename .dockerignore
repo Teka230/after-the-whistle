@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+!.env.example
+node_modules
+**/node_modules
+**/dist
+data
+*.db
+*.db-*
+*.log
+*.tsbuildinfo
+*.patch*.cjs
+test.ts
+test2.ts
+docs/split_docs.py

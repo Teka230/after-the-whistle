@@ -1,143 +1,101 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>After The Whistle | Architecture</title>
-    <link rel="stylesheet" href="assets/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>After the Whistle | Architecture</title>
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <div class="logo-icon"></div>
-                After The Whistle
-            </div>
-            <div class="nav-links">
-                <a href="index.html">Accueil</a>
-                <a href="demo.html">Simulateur</a>
-                <a href="architecture.html" class="active">Architecture</a>
-                <a href="tools.html">Outils MCP</a>
-                <a href="setup.html">Installation</a>
-            </div>
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <nav class="navbar" aria-label="Navigation principale">
+    <div class="nav-container">
+      <a class="nav-logo" href="index.html"><span class="logo-icon" aria-hidden="true"></span><span>After the Whistle</span></a>
+      <div class="nav-links">
+        <a href="index.html">Accueil</a>
+        <a href="demo.html">Simulateur</a>
+        <a href="architecture.html" class="active">Architecture</a>
+        <a href="tools.html">Outils MCP</a>
+        <a href="setup.html">Installation</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="page-section">
+    <div class="container">
+      <header class="page-header">
+        <div class="section-badge">Monorepo pnpm</div>
+        <h1 class="page-title">Le LLM explique. Le backend calcule.</h1>
+        <p class="page-lede">
+          L'app n'est pas un RAG classique. Elle produit d'abord des faits vérifiés, puis ChatGPT les transforme en discussion, visualisation ou débat selon le ton demandé.
+        </p>
+      </header>
+
+      <section class="architecture-grid" aria-label="Architecture du projet">
+        <div class="panel arch-graph">
+          <svg viewBox="0 0 560 420" role="img" aria-label="Flux de données After the Whistle">
+            <path data-arch-line="widgets mcp" class="arch-connector-line" d="M140 90 C230 90 250 150 280 190" fill="none" stroke="rgba(255,255,255,.24)" stroke-width="3"/>
+            <path data-arch-line="mcp core" class="arch-connector-line" d="M420 90 C350 110 320 150 280 190" fill="none" stroke="rgba(255,255,255,.24)" stroke-width="3"/>
+            <path data-arch-line="core db" class="arch-connector-line" d="M250 230 C210 280 170 318 140 350" fill="none" stroke="rgba(255,255,255,.24)" stroke-width="3"/>
+            <path data-arch-line="core providers" class="arch-connector-line" d="M310 230 C350 280 390 318 420 350" fill="none" stroke="rgba(255,255,255,.24)" stroke-width="3"/>
+            <g data-arch-node="widgets" class="arch-node" transform="translate(140 90)">
+              <circle r="44" fill="#111827" stroke="rgba(255,255,255,.18)" stroke-width="3"/><text fill="#f4f5f7" text-anchor="middle" y="5" font-weight="800">widgets</text>
+            </g>
+            <g data-arch-node="mcp" class="arch-node" transform="translate(420 90)">
+              <circle r="44" fill="#111827" stroke="rgba(255,255,255,.18)" stroke-width="3"/><text fill="#f4f5f7" text-anchor="middle" y="5" font-weight="800">mcp</text>
+            </g>
+            <g data-arch-node="core" class="arch-node" transform="translate(280 210)">
+              <circle r="54" fill="#1e293b" stroke="#f97316" stroke-width="4"/><text fill="#fbbf24" text-anchor="middle" y="5" font-weight="900">core</text>
+            </g>
+            <g data-arch-node="db" class="arch-node" transform="translate(140 350)">
+              <circle r="44" fill="#111827" stroke="rgba(255,255,255,.18)" stroke-width="3"/><text fill="#f4f5f7" text-anchor="middle" y="5" font-weight="800">SQLite</text>
+            </g>
+            <g data-arch-node="providers" class="arch-node" transform="translate(420 350)">
+              <circle r="44" fill="#111827" stroke="rgba(255,255,255,.18)" stroke-width="3"/><text fill="#f4f5f7" text-anchor="middle" y="5" font-weight="800">APIs</text>
+            </g>
+          </svg>
         </div>
-    </nav>
 
-    <main style="padding-top: 80px;">
-        <section id="core-concept" class="section">
-            <div class="container">
-                <div class="section-header">
-                    <div class="section-badge">Le Problème</div>
-                    <h2 class="section-title">Le Concept Déterministe</h2>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
-                    <div>
-                        <h3 style="color: var(--accent-orange); margin-bottom: 12px;">Sans After The Whistle</h3>
-                        <p style="color: var(--text-muted); line-height: 1.6;">
-                            Demandez à un LLM d'analyser un match de basket récent. Soit il ne l'a pas dans ses données, soit il l'a lu sur internet. S'il l'a lu, il va résumer le ton général d'un article. S'il manque de données, il va halluciner des statistiques (ex: inventer qu'un joueur a marqué 30 points).
-                        </p>
-                    </div>
-                    <div>
-                        <h3 style="color: #4ade80; margin-bottom: 12px;">Avec After The Whistle</h3>
-                        <p style="color: var(--text-muted); line-height: 1.6;">
-                            Le modèle utilise le <strong>Model Context Protocol (MCP)</strong> pour interroger la base de données locale du projet. Le package <code>@after-the-whistle/core</code> calcule les Momentum Runs et les performances <strong>avant</strong> d'envoyer un JSON strict et formel au LLM. Le LLM ne fait qu'habiller la donnée exacte avec le ton demandé.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="architecture" class="section" style="background: rgba(255,255,255,0.02);">
-            <div class="container">
-                <div class="section-header">
-                    <div class="section-badge">Architecture</div>
-                    <h2 class="section-title">Monorepo Turborepo</h2>
-                    <p class="section-subtitle">Le projet est divisé en packages modulaires pour séparer la logique d'analyse de l'affichage UI.</p>
-                </div>
-
-                <div class="arch-visualizer">
-                    <div class="arch-graph">
-                        <svg width="100%" height="100%" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Lignes de connexion -->
-                            <path id="line-1" class="arch-connector-line" d="M 150 100 Q 250 100 250 200" fill="none" />
-                            <path id="line-2" class="arch-connector-line" d="M 350 100 Q 250 100 250 200" fill="none" />
-                            <path id="line-3" class="arch-connector-line" d="M 250 200 Q 250 350 150 350" fill="none" />
-                            <path id="line-4" class="arch-connector-line" d="M 250 200 Q 250 350 350 350" fill="none" />
-                            
-                            <!-- Nodes -->
-                            <g class="arch-node" id="node-widgets" transform="translate(150, 100)" onclick="highlightArchNode('widgets')">
-                                <circle cx="0" cy="0" r="30" fill="var(--bg-lighter)" stroke="var(--border-light)" stroke-width="2" />
-                                <text x="0" y="5" fill="var(--text-main)" font-size="12" font-family="Space Grotesk" text-anchor="middle" font-weight="600">UI</text>
-                            </g>
-                            <g class="arch-node" id="node-mcp" transform="translate(350, 100)" onclick="highlightArchNode('mcp')">
-                                <circle cx="0" cy="0" r="30" fill="var(--bg-lighter)" stroke="var(--border-light)" stroke-width="2" />
-                                <text x="0" y="5" fill="var(--text-main)" font-size="12" font-family="Space Grotesk" text-anchor="middle" font-weight="600">MCP</text>
-                            </g>
-                            <g class="arch-node" id="node-core" transform="translate(250, 200)" onclick="highlightArchNode('core')">
-                                <circle cx="0" cy="0" r="40" fill="#1e293b" stroke="var(--accent-orange)" stroke-width="3" />
-                                <text x="0" y="5" fill="var(--accent-orange)" font-size="14" font-family="Space Grotesk" text-anchor="middle" font-weight="700">CORE</text>
-                            </g>
-                            <g class="arch-node" id="node-db" transform="translate(150, 350)" onclick="highlightArchNode('db')">
-                                <circle cx="0" cy="0" r="30" fill="var(--bg-lighter)" stroke="var(--border-light)" stroke-width="2" />
-                                <text x="0" y="5" fill="var(--text-main)" font-size="12" font-family="Space Grotesk" text-anchor="middle" font-weight="600">DB</text>
-                            </g>
-                            <g class="arch-node" id="node-providers" transform="translate(350, 350)" onclick="highlightArchNode('providers')">
-                                <circle cx="0" cy="0" r="30" fill="var(--bg-lighter)" stroke="var(--border-light)" stroke-width="2" />
-                                <text x="0" y="5" fill="var(--text-main)" font-size="12" font-family="Space Grotesk" text-anchor="middle" font-weight="600">API</text>
-                            </g>
-                        </svg>
-                    </div>
-                    
-                    <div class="arch-packages">
-                        <div class="package-item active" id="arch-pkg-core" onclick="highlightArchNode('core')">
-                            <h4 style="margin: 0 0 4px 0; color: var(--accent-orange);">@after-the-whistle/core</h4>
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Le moteur d'insights. Contient la logique d'identification des runs, les formules de possession et l'orchestration déterministe.</p>
-                        </div>
-                        <div class="package-item" id="arch-pkg-mcp" onclick="highlightArchNode('mcp')">
-                            <h4 style="margin: 0 0 4px 0;">@after-the-whistle/mcp-server</h4>
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">L'interface avec ChatGPT (Port 8788). Déclare les outils via <code>chatgpt-app.json</code> et parse les requêtes du LLM pour appeler le core.</p>
-                        </div>
-                        <div class="package-item" id="arch-pkg-widgets" onclick="highlightArchNode('widgets')">
-                            <h4 style="margin: 0 0 4px 0;">@after-the-whistle/widgets</h4>
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Les composants UI React (Canvas). Stylisés via <code>styles.css</code>, ces widgets sont injectés dans ChatGPT par le serveur MCP.</p>
-                        </div>
-                        <div class="package-item" id="arch-pkg-db" onclick="highlightArchNode('db')">
-                            <h4 style="margin: 0 0 4px 0;">Base de données locale</h4>
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Stockage SQLite local pour mettre en cache les PBP (Play-By-Play) et éviter d'atteindre les limites de taux de l'API sportive.</p>
-                        </div>
-                        <div class="package-item" id="arch-pkg-providers" onclick="highlightArchNode('providers')">
-                            <h4 style="margin: 0 0 4px 0;">Providers Externes</h4>
-                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Connecteurs vers NBA Stats, API-Football ou autres fournisseurs de données sportives brutes.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            <svg class="footer-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-                <rect width="64" height="64" rx="14" fill="#0f1115"/>
-                <defs>
-                    <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#fbbf24"/>
-                        <stop offset="100%" stop-color="#f97316"/>
-                    </linearGradient>
-                </defs>
-                <path d="M18 30c0-4.5 3.5-8 8-8.5l2.2-4.5h6.8l1.8 3.6c4 .6 7 4 7 8.4v.4c0 4.8-4 8.6-9 8.6h-9c-4.5 0-8-3.5-8-8z" fill="url(#g3)"/>
-                <path d="M42 26c4 0 7 1.6 9 4 1.6 2 2.4 4.4 2.4 6.4" fill="none" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
-                <path d="M46 20c5.6 1 10 4.4 12.4 9" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>
-            </svg>
-            <p style="font-weight: 700; color: var(--text-main); margin-bottom: 8px;">After the Whistle</p>
-            <p style="margin: 0; font-size: 0.8rem;">“When play stops, the real talk starts.”</p>
-            <p style="margin: 16px 0 0; font-size: 0.72rem; color: rgba(255,255,255,0.25);">© 2026 After the Whistle. Présentation Interactive du Connecteur MCP.</p>
+        <div class="arch-packages">
+          <button class="package-item active" type="button" data-arch="core">
+            <h3>@after-the-whistle/core</h3>
+            <p>Domaine, personas, détection des runs/droughts, momentum, stints et insight bundle.</p>
+          </button>
+          <button class="package-item" type="button" data-arch="providers">
+            <h3>@after-the-whistle/providers</h3>
+            <p>Adaptateurs NBA, ESPN soccer, secours OpenFootball et jeu de données sample PSG/Inter.</p>
+          </button>
+          <button class="package-item" type="button" data-arch="db">
+            <h3>@after-the-whistle/db</h3>
+            <p>Cache SQLite local: games, box lines, timeline events, context blocks, shot charts et momentum.</p>
+          </button>
+          <button class="package-item" type="button" data-arch="mcp">
+            <h3>@after-the-whistle/mcp-server</h3>
+            <p>Serveur HTTP MCP sur le port 8788, contrat de tools et resource HTML du widget.</p>
+          </button>
+          <button class="package-item" type="button" data-arch="widgets">
+            <h3>@after-the-whistle/widgets</h3>
+            <p>Widget React single-file pour ChatGPT: box score, contexte de stat, shot chart, momentum et analyses.</p>
+          </button>
         </div>
-    </footer>
-    <script src="assets/app.js"></script>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div class="section-badge">Pipeline</div>
+          <h2 class="section-title">Du fournisseur au commentaire</h2>
+        </div>
+        <div class="flow">
+          <div class="flow-step"><span class="step-num">1</span><div><strong>Discovery</strong><p>`query` ou `gameId` est normalisé, puis résolu dans le cache ou via scoreboard/fixtures.</p></div></div>
+          <div class="flow-step"><span class="step-num">2</span><div><strong>Ingestion</strong><p>Les données sont chargées depuis NBA Stats ou ESPN, puis stockées dans le cache SQLite.</p></div></div>
+          <div class="flow-step"><span class="step-num">3</span><div><strong>Insight Engine</strong><p>`core` calcule faits, runs, momentum et prompts. Le LLM ne les invente pas.</p></div></div>
+          <div class="flow-step"><span class="step-num">4</span><div><strong>Widget MCP</strong><p>ChatGPT affiche la ressource HTML et le widget rappelle les tools accessibles si l'utilisateur clique.</p></div></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer><div class="container"><p>Architecture alignée avec les packages TypeScript du dépôt.</p></div></footer>
+  <script src="assets/app.js"></script>
 </body>
 </html>

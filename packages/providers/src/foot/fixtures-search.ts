@@ -1,8 +1,7 @@
 import type { Sport } from "@after-the-whistle/core";
 import { gameIdForSport } from "@after-the-whistle/core";
-import type { FixturePayload } from "./api-football.js";
-
-const BASE = "https://v3.football.api-sports.io";
+import { fetchEspnScoreboard, type EspnEvent } from "./espn-api.js";
+import { fetchOpenFootballMatches } from "./openfootball-api.js";
 
 export type FixtureMatch = {
   gameId: string;
@@ -11,50 +10,17 @@ export type FixtureMatch = {
   sport: Sport;
 };
 
-function footHeaders(): Record<string, string> {
-  const key = process.env.API_FOOTBALL_KEY;
-  if (!key) throw new Error("API_FOOTBALL_KEY is required for soccer live lookup");
-  return { "x-apisports-key": key };
-}
+const LEAGUES = ["eng.1", "fra.1", "esp.1", "ita.1", "uefa.champions", "fifa.world"];
 
-let lastFootFetch = 0;
-
-async function fetchFootJson<T>(url: string): Promise<T> {
-  const minDelay = 6500;
-  const now = Date.now();
-  const wait = Math.max(0, minDelay - (now - lastFootFetch));
-  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-  lastFootFetch = Date.now();
-
-  const res = await fetch(url, { headers: footHeaders() });
-  if (!res.ok) throw new Error(`API-Football HTTP ${res.status}`);
-  return res.json() as Promise<T>;
-}
-
-interface ApiFootballResponse<T> {
-  response: T[];
-}
-
-function fixtureToMatch(f: FixturePayload): FixtureMatch {
-  const home = f.teams.home.name;
-  const away = f.teams.away.name;
-  const hs = f.goals.home ?? 0;
-  const as = f.goals.away ?? 0;
+function espnToMatch(ev: EspnEvent, league: string): FixtureMatch {
+  const home = ev.competitions[0].competitors.find(c => c.homeAway === "home") || ev.competitions[0].competitors[0];
+  const away = ev.competitions[0].competitors.find(c => c.homeAway === "away") || ev.competitions[0].competitors[1];
   return {
-    gameId: gameIdForSport("foot", String(f.fixture.id)),
-    label: `${away} ${as} @ ${home} ${hs} (${f.fixture.status.short})`,
-    status: f.fixture.status.short,
+    gameId: gameIdForSport("foot", `${league}_${ev.id}`),
+    label: `${away.team.name} ${away.score} @ ${home.team.name} ${home.score} (${ev.status.type.shortDetail})`,
+    status: ev.status.type.shortDetail,
     sport: "foot",
   };
-}
-
-async function searchTeamId(query: string): Promise<number | null> {
-  const url = `${BASE}/teams?search=${encodeURIComponent(query)}`;
-  const data = await fetchFootJson<
-    ApiFootballResponse<{ team: { id: number; name: string } }>
-  >(url);
-  const team = data.response?.[0]?.team;
-  return team?.id ?? null;
 }
 
 export async function searchFootFixtures(
@@ -62,42 +28,97 @@ export async function searchFootFixtures(
   dates: string[] = [],
   limit = 8
 ): Promise<FixtureMatch[]> {
-  
-  let cleanQuery = query.replace(/\b(janvier|fevrier|février|mars|avril|mai|juin|juillet|aout|août|septembre|octobre|novembre|decembre|décembre|january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/gi, "");
-  cleanQuery = cleanQuery.replace(/\b\d{1,4}\b/g, "");
-  const teamSearch = cleanQuery.trim().split(/\s+/)[0];
-  if (!teamSearch) return [];
-  const teamId = await searchTeamId(teamSearch);
-  if (!teamId) return [];
 
-  if (dates.length > 0) {
-    const results = [];
-    for (const d of dates) {
-      const url = `${BASE}/fixtures?team=${teamId}&date=${d}`;
-      const data = await fetchFootJson<ApiFootballResponse<FixturePayload>>(url);
-      results.push(...(data.response ?? []).map(fixtureToMatch));
+  let cleanQuery = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  cleanQuery = cleanQuery.replace(/\b(janvier|fevrier|février|mars|avril|mai|juin|juillet|aout|août|septembre|octobre|novembre|decembre|décembre|january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/gi, "");
+  cleanQuery = cleanQuery.replace(/\b\d{1,4}\b/g, "");
+  const terms = cleanQuery.trim().toLowerCase().split(/\s+/).filter(t => t.length > 2);
+  if (terms.length === 0) return [];
+
+  const normalizeText = (text: string) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+  const results: FixtureMatch[] = [];
+
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const currentMonthRange = `${y}${m}01-${y}${m}31`;
+
+  const searchDates = dates.length ? dates.map(d => d.replace(/-/g, "")) : [currentMonthRange];
+
+  // 1. Search ESPN
+  for (const formattedDate of searchDates) {
+    for (const league of LEAGUES) {
+      try {
+        const board = await fetchEspnScoreboard(league, formattedDate);
+        for (const ev of board.events || []) {
+          const isMatch = terms.every(term =>
+            ev.competitions[0].competitors.some(c =>
+              normalizeText(c.team.name).includes(term) ||
+              (c.team.abbreviation && normalizeText(c.team.abbreviation).includes(term))
+            )
+          );
+          if (isMatch) {
+            results.push(espnToMatch(ev, league));
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
     }
-    return results.slice(0, limit);
   }
 
-  const url = `${BASE}/fixtures?team=${teamId}&last=15`;
-  const data = await fetchFootJson<ApiFootballResponse<FixturePayload>>(url);
-  return (data.response ?? []).slice(0, limit).map(fixtureToMatch);
+  // 2. OpenFootball Fallback
+  if (results.length === 0) {
+    try {
+      // Just a stub search on worldcup.json for the fallback as an example
+      const openMatches = await fetchOpenFootballMatches("worldcup.json", "2022/worldcup.json");
+      for (const m of openMatches) {
+        const t1 = normalizeText(m.team1);
+        const t2 = normalizeText(m.team2);
+        if (terms.every(t => t1.includes(t) || t2.includes(t))) {
+          results.push({
+            gameId: `foot:open_${m.date}_${m.team1.substring(0,3)}_${m.team2.substring(0,3)}`.toLowerCase(),
+            label: `${m.team2} @ ${m.team1} (FT) [OpenFootball Fallback]`,
+            status: "FT",
+            sport: "foot"
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return results.slice(0, limit);
 }
 
 export async function listRecentFootFixtures(limit = 8): Promise<FixtureMatch[]> {
-  const url = `${BASE}/fixtures?live=all`;
-  try {
-    const data = await fetchFootJson<ApiFootballResponse<FixturePayload>>(url);
-    const live = (data.response ?? []).map(fixtureToMatch);
-    if (live.length >= limit) return live.slice(0, limit);
-  } catch {
-    // no live fixtures or quota
+  const results: FixtureMatch[] = [];
+
+  for (const league of LEAGUES) {
+    if (results.length >= limit) break;
+    try {
+      const board = await fetchEspnScoreboard(league);
+      const live = (board.events || []).filter(ev => ev.status.type.state === "in");
+      results.push(...live.map(ev => espnToMatch(ev, league)));
+    } catch {
+      // ignore
+    }
   }
 
-  const d = new Date();
-  const date = d.toISOString().slice(0, 10);
-  const dayUrl = `${BASE}/fixtures?date=${date}`;
-  const dayData = await fetchFootJson<ApiFootballResponse<FixturePayload>>(dayUrl);
-  return (dayData.response ?? []).slice(0, limit).map(fixtureToMatch);
+  if (results.length < limit) {
+    for (const league of LEAGUES) {
+      if (results.length >= limit) break;
+      try {
+        const board = await fetchEspnScoreboard(league);
+        const post = (board.events || []).filter(ev => ev.status.type.state === "post");
+        results.push(...post.map(ev => espnToMatch(ev, league)));
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  return results.slice(0, limit);
 }
