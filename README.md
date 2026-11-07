@@ -1,4 +1,6 @@
-# After the Whistle — ChatGPT App
+# After the Whistle
+
+Débriefs basket et foot dans ChatGPT, avec une feuille de stats cliquable et des faits vérifiés.
 
 **Tagline:** *When play stops, the real talk starts.*
 
